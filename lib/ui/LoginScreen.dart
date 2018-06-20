@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutterworkshop/interactor/AuthenticationManager.dart';
 import 'package:flutterworkshop/ui/FeedScreen.dart';
+import 'package:logging/logging.dart';
 
 class LoginScreen extends StatefulWidget {
   static Color colorBlue = const Color(0xFF3662FD);
@@ -15,15 +16,35 @@ class _LoginScreenState extends State<LoginScreen> {
   final _userNameController = new TextEditingController();
   final _passwordController = new TextEditingController();
 
+  final Logger log = new Logger("_LoginScreenState");
+  static final String LOGIN = "Login";
+  static final String LOGING_IN = "Loging in...";
+  static final String SUCCESS = "Succces";
+
+  String _loginStatus = LOGIN;
+
   void _loginClicked() {
+    setState(() {
+      _loginStatus = LOGING_IN;
+    });
     _authManager
         .login(_userNameController.text, _passwordController.text)
         .then((success) {
       if (success) {
-        Navigator.of(context).pushReplacement(
-            new MaterialPageRoute(builder: (context) => FeedScreen()));
+        setState(() {
+          _loginStatus = SUCCESS;
+        });
+        Navigator
+            .of(context)
+            .push(new MaterialPageRoute(builder: (context) => FeedScreen()));
       } else {
-        //todo - show error message
+        setState(() {
+          _loginStatus = LOGIN;
+        });
+        Navigator
+            .of(context)
+            .push(new MaterialPageRoute(builder: (context) => FeedScreen()));
+        //todo - show error
       }
     });
   }
@@ -42,22 +63,36 @@ class _LoginScreenState extends State<LoginScreen> {
               borderSide: new BorderSide(color: Colors.white)));
     }
 
-    final logo = AnimatedOpacity(
-      opacity: 1.0,
-      duration: new Duration(milliseconds: 1000),
-      child: new Container(
-        width: 200.0,
-        height: 200.0,
-        child: new Container(
-          child: new Column(
-            children: <Widget>[
-              new Image.asset("assets/Shape.png"),
-              new Padding(
-                padding: EdgeInsets.all(10.0),
-                child: new Image.asset("assets/Github-Logo.png"),
-              )
-            ],
+    final logoWithHeroAnimation = new Hero(
+        tag: "logoHero",
+        child: Container(
+          width: 200.0,
+          height: 200.0,
+          child: new Container(
+            child: new Column(
+              children: <Widget>[
+                new Image.asset("assets/Shape.png"),
+                new Padding(
+                  padding: EdgeInsets.all(10.0),
+                  child: new Image.asset("assets/Github-Logo.png"),
+                )
+              ],
+            ),
           ),
+        ));
+
+    final logo = new Container(
+      width: 200.0,
+      height: 200.0,
+      child: new Container(
+        child: new Column(
+          children: <Widget>[
+            new Image.asset("assets/Shape.png"),
+            new Padding(
+              padding: EdgeInsets.all(10.0),
+              child: new Image.asset("assets/Github-Logo.png"),
+            )
+          ],
         ),
       ),
     );
@@ -67,7 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
         child: TextFormField(
             keyboardType: TextInputType.emailAddress,
             style: new TextStyle(color: Colors.white),
-            autofocus: true,
+            autofocus: false,
             decoration: _createDecorationInput("Email")));
 
     final password = Container(
@@ -89,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
           onPressed: () => _loginClicked(),
           color: Colors.white,
           child: Text(
-            "Log In",
+            _loginStatus,
             style: TextStyle(color: LoginScreen.colorBlue),
           ),
         ),
@@ -110,7 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
             shrinkWrap: true,
             padding: EdgeInsets.only(left: 24.0, right: 24.0),
             children: <Widget>[
-              logo,
+              logoWithHeroAnimation,
               validationForm,
               loginButton,
               new SizedBox(

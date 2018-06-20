@@ -1,7 +1,5 @@
-//todo - create a login
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:http/http.dart';
 import 'package:logging/logging.dart';
 
@@ -77,20 +75,19 @@ class AuthenticationManager {
     });
 
     //save the response for the request in a var
-    final loginResponse = await _client
+    final loginResponse = await authClient
         .post(LOGIN_SERVICE, headers: requestHeader, body: requestBody)
         .catchError((e) => log.severe(e.toString()))
-        .whenComplete(_client.close);
+        .whenComplete(authClient.close);
 
-    if (loginResponse.statusCode == 201 || loginResponse.statusCode == 200) {
+    if (loginResponse.statusCode == 200) {
       final bodyJson = JSON.decode(loginResponse.body);
       await _saveToken(userName, bodyJson['token']);
       _loggedIn = true;
     } else {
-      //todo - log something if there's an error - like not good password, or username etc.
+      log.severe(loginResponse.statusCode);
       _loggedIn = false;
     }
-
     return _loggedIn;
   }
 
