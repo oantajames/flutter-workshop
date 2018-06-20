@@ -1,0 +1,56 @@
+IOS: https://flutter.io/flutter-for-ios/#threading--asynchronicity
+ANDROID: https://flutter.io/flutter-for-android/#async-ui
+
+Asynchronous Programming: Futures
+
+ What's the point?
+ Dart is single-threaded.
+ Synchronous code can make your program freeze.
+ Use Futures to perform asynchronous operations.
+ Use await in an async function to pause execution until a Future completes.
+ Or use Future’s then() method.
+ Use try-catch expressions in async functions to catch errors.
+ Or use Future’s catchError() method.
+ You can chain Futures to run asynchronous functions in order.
+
+Dart has a single-threaded execution model, with support for Isolates (a way to run Dart code on another thread), an event loop, and asynchronous programming.
+
+Unless you spawn an Isolate, your Dart code runs in the main UI thread and is driven by an event loop.
+
+
+Flutter’s event loop is equivalent to Android’s main Looper—that is, the Looper that is attached to the main thread.
+Flutter’s event loop is equivalent to the iOS main loop—that is, the Looper that is attached to the main thread.
+(like Node.js)
+
+
+ASYNC/AWAIT
+Dart’s single-threaded model doesn’t mean you are required to run everything as a blocking operation that causes the UI to freeze. Instead, use the asynchronous facilities that the Dart language provides, such as async/await, to perform asynchronous work.
+
+loadData() async {
+  String dataURL = "https://jsonplaceholder.typicode.com/posts";
+  http.Response response = await http.get(dataURL);
+  setState(() {
+    widgets = json.decode(response.body);
+  });
+}
+
+Once the awaited network call is done, update the UI by calling setState(), which triggers a rebuild of the widget sub-tree and updates the data.
+
+Don't worry about the thread management or spawning background threads. For I/O-bound work (disk or network calls) you can use safely async/await.
+
+ISOLATE
+
+Computationally intensive work that keeps the CPU busy.
+Use Isolates to take advantage of multiple CPU cores to do long-running or computationally intensive tasks.
+
+They don't share any memory with the main execution memory heap!
+You CAN'T access var's from the main thread, ur update the ui by calling setState()!! - they CAN'T share memory(in the form of static fields, for example)!
+
+NETWORKING :
+
+Http package
+
+-> pubspec.yaml
+        dependencies:
+        ...
+        http: ^0.11.3+16

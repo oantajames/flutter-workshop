@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutterworkshop/interactor/AuthenticationManager.dart';
+import 'package:flutterworkshop/networking/AuthenticationManager.dart';
 import 'package:flutterworkshop/ui/FeedScreen.dart';
 import 'package:flutterworkshop/ui/LoginScreen.dart';
 
@@ -29,37 +29,34 @@ class _SplashState extends State<SplashScreen> {
     await _authManager.init();
     String route;
     if (_authManager.loggedIn) {
-      new Future.delayed(const Duration(seconds: 3), () {
-        Navigator
-            .of(context)
-            .push(new MyCustomRoute(builder: (context) => FeedScreen()));
-      });
+      //todo 2: delay the push action on the navigtor with 3 seconds
+      Navigator
+          .of(context)
+          .push(new MaterialPageRoute(builder: (context) => FeedScreen()));
     } else {
-      new Future.delayed(const Duration(seconds: 3), () {
-        Navigator
-            .of(context)
-            .push(new MyCustomRoute(builder: (context) => LoginScreen()));
-      });
+      //todo 3: delay the push action on the navigtor with 3 seconds
+      Navigator
+          .of(context)
+          .push(new MaterialPageRoute(builder: (context) => LoginScreen()));
     }
   }
 
-  final logoWithHeroAnimation = new Hero(
-      tag: "logoHero",
-      child: Container(
-        width: 200.0,
-        height: 200.0,
-        child: new Container(
-          child: new Column(
-            children: <Widget>[
-              new Image.asset("assets/Shape.png"),
-              new Padding(
-                padding: EdgeInsets.all(10.0),
-                child: new Image.asset("assets/Github-Logo.png"),
-              )
-            ],
-          ),
-        ),
-      ));
+  //todo 1: wrap the container inside a Hero widget and set the tag of the widget to githubLogo
+  final logoWithHeroAnimation = new Container(
+    width: 200.0,
+    height: 200.0,
+    child: new Container(
+      child: new Column(
+        children: <Widget>[
+          new Image.asset("assets/Shape.png"),
+          new Padding(
+            padding: EdgeInsets.all(10.0),
+            child: new Image.asset("assets/Github-Logo.png"),
+          )
+        ],
+      ),
+    ),
+  );
 
   final logo = new Container(
     width: 200.0,
@@ -85,23 +82,10 @@ class _SplashState extends State<SplashScreen> {
   }
 }
 
-class MyCustomRoute<T> extends MaterialPageRoute<T> {
-  MyCustomRoute({WidgetBuilder builder, RouteSettings settings})
-      : super(builder: builder, settings: settings);
-
-  @override
-  Duration get transitionDuration => new Duration(milliseconds: 1000);
-
-  @override
-  Widget buildTransitions(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation, Widget child) {
-    if (settings.isInitialRoute) {
-      return child;
-    }
-    //todo - solve the bug related to the black line appearing on the right side
-    return new FadeTransition(
-      opacity: animation,
-      child: child,
-    );
-  }
+//todo 4: create a custom Route that uses Fade Animation
+// You will need to extend from MaterialPageRoute<T> and overide buildTransitions
+//todo 5: Create the FadeTransition inside the buildTransition method
+//todo 6: overide the transitionDuration so it will take 1 second
+class MyCustomRoute {
+  //todo
 }

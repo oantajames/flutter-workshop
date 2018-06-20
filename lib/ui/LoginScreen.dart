@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutterworkshop/interactor/AuthenticationManager.dart';
+import 'package:flutterworkshop/networking/AuthenticationManager.dart';
 import 'package:flutterworkshop/ui/FeedScreen.dart';
-import 'package:logging/logging.dart';
 
 class LoginScreen extends StatefulWidget {
   static Color colorBlue = const Color(0xFF3662FD);
@@ -13,38 +12,26 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final AuthenticationManager _authManager = new AuthenticationManager();
-  final _userNameController = new TextEditingController();
-  final _passwordController = new TextEditingController();
 
-  final Logger log = new Logger("_LoginScreenState");
-  static final String LOGIN = "Login";
-  static final String LOGING_IN = "Loging in...";
-  static final String SUCCESS = "Succces";
+  //todo 1 - create TexEditingController for the userName and password and pass them to the widgets.
 
-  String _loginStatus = LOGIN;
+  //todo 3: Update the text from the login button as follows: (hint - use setState)
+  // todo: Default saying: Login
+  //todo: When Clicked: Logging in...
+  //todo: On Success: Success
+  //todo: On error/failed: Login
+
+  String _loginStatus = "Login";
 
   void _loginClicked() {
-    setState(() {
-      _loginStatus = LOGING_IN;
-    });
-    _authManager
-        .login(_userNameController.text, _passwordController.text)
-        .then((success) {
+    //todo 2: pass the username and password from the TexEditingController here
+    _authManager.login("", "").then((success) {
       if (success) {
-        setState(() {
-          _loginStatus = SUCCESS;
-        });
         Navigator
             .of(context)
             .push(new MaterialPageRoute(builder: (context) => FeedScreen()));
       } else {
-        setState(() {
-          _loginStatus = LOGIN;
-        });
-        Navigator
-            .of(context)
-            .push(new MaterialPageRoute(builder: (context) => FeedScreen()));
-        //todo - show error
+        //todo 3:- show a SnackBar with an error
       }
     });
   }
@@ -63,24 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
               borderSide: new BorderSide(color: Colors.white)));
     }
 
-    final logoWithHeroAnimation = new Hero(
-        tag: "logoHero",
-        child: Container(
-          width: 200.0,
-          height: 200.0,
-          child: new Container(
-            child: new Column(
-              children: <Widget>[
-                new Image.asset("assets/Shape.png"),
-                new Padding(
-                  padding: EdgeInsets.all(10.0),
-                  child: new Image.asset("assets/Github-Logo.png"),
-                )
-              ],
-            ),
-          ),
-        ));
-
+    //todo 6: - wrap the container inside a Hero widget and set the tag of the widget to githubLogo
     final logo = new Container(
       width: 200.0,
       height: 200.0,
@@ -97,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
 
-    final email = Container(
+    final username = Container(
         padding: EdgeInsets.all(10.0),
         child: TextFormField(
             keyboardType: TextInputType.emailAddress,
@@ -134,7 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final validationForm = new Form(
       key: null,
       child: Column(
-        children: <Widget>[email, password],
+        children: <Widget>[username, password],
       ),
     );
 
@@ -145,7 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
             shrinkWrap: true,
             padding: EdgeInsets.only(left: 24.0, right: 24.0),
             children: <Widget>[
-              logoWithHeroAnimation,
+              logo,
               validationForm,
               loginButton,
               new SizedBox(

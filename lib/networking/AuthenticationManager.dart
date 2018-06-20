@@ -1,17 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart';
-import 'package:logging/logging.dart';
 
-// A plugin: wrapper over the native shared preferences from both platforms(IOS,ANDROID)
-import 'package:shared_preferences/shared_preferences.dart';
+//todo 1: import shared prefs package
+// ** A plugin: wrapper over the native shared preferences from both platforms(IOS,ANDROID)
+
+//import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthenticationManager {
   static const String LOGIN_SERVICE = 'https://api.github.com/authorizations';
+
   static const String KEY_OATUH_TOKEN = 'AUTH_TOKEN';
   static const String KEY_USER_NAME = 'USER_NAME';
-
-  final Logger log = new Logger('AuthenticationManager');
 
 //Github related - you will have them from the github console, after you create an oauth github app
   final String _clientId = '0c3309f29b2560e05218';
@@ -19,7 +19,6 @@ class AuthenticationManager {
 
   bool _initialized;
   bool _loggedIn;
-
   String _username;
   AuthClient _authClient;
 
@@ -33,40 +32,43 @@ class AuthenticationManager {
 
   AuthClient get authClient => _authClient;
 
-  // Initializing the Authentication Manager
-  Future init() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    String userName = preferences.getString(KEY_USER_NAME);
-    String oAuthToken = preferences.getString(KEY_OATUH_TOKEN);
+  //todo 2: Make this method from synchronous to asynchronous
+  void init() {
+    // todo : create a shared preferences instance and get the username and token from there
+    String userName = "";
+    String oAuthToken = "";
 
+    //todo - check if the username and token is null
     if (userName == null || oAuthToken == null) {
       _loggedIn = false;
-      await logout();
+      //don't forget the await
+      logout();
     } else {
       _loggedIn = true;
       _username = userName;
-      _authClient = new AuthClient(_client, oAuthToken);
+      _authClient = new OauthClient(_client, oAuthToken);
     }
     _initialized = true;
   }
 
-  Future logout() async {
-    await _saveToken(null, null);
+  //todo 3: Make this method from synchronous to asynchronous
+  void logout() {
+    //don't forget the await
+    _saveToken(null, null);
     _loggedIn = false;
   }
 
-  _saveToken(String userName, token) async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    preferences.setString(KEY_USER_NAME, userName);
-    preferences.setString(KEY_OATUH_TOKEN, token);
-    await preferences.commit();
+  _saveToken(String userName, token) {
+    //todo 4: save the username and token in the shared preferences
     _username = userName;
-    _authClient = new AuthClient(_client, token);
+    _authClient = new OauthClient(_client, token);
   }
 
-  Future<bool> login(String userName, String password) async {
+  //todo 5: make the login method asynchronous
+  bool login(String userName, String password) {
     var token = _getEncodedAuthorization(userName, password);
     final requestHeader = {'Authorization': 'Basic ${token}'};
+    print(requestHeader);
 
     final requestBody = JSON.encode({
       'clinet_id': _clientId,
@@ -75,19 +77,20 @@ class AuthenticationManager {
     });
 
     //save the response for the request in a var
-    final loginResponse = await authClient
-        .post(LOGIN_SERVICE, headers: requestHeader, body: requestBody)
-        .catchError((e) => log.severe(e.toString()))
-        .whenComplete(authClient.close);
+    //todo - using the authClient create a post request with the following params: LOGIN_SERVICE, requestHeader, reuqestBody
+    //todo - when the req is completed, close the http client.
+    final loginResponse = null;
 
     if (loginResponse.statusCode == 200) {
       final bodyJson = JSON.decode(loginResponse.body);
-      await _saveToken(userName, bodyJson['token']);
+      //don't forget the await
+      _saveToken(userName, bodyJson['token']);
       _loggedIn = true;
     } else {
-      log.severe(loginResponse.statusCode);
+      print(loginResponse.statusCode);
       _loggedIn = false;
     }
+    print(loginResponse.reasonPhrase);
     return _loggedIn;
   }
 
@@ -97,8 +100,11 @@ class AuthenticationManager {
   }
 }
 
-// The HTTP client for the oauth for Github
-class AuthClient extends BaseClient {
+class OauthClient extends AuthClient {
+  OauthClient(Client client, String token) : super(client, 'token ${token}');
+}
+
+abstract class AuthClient extends BaseClient {
   final Client _client;
   final String _token;
 
