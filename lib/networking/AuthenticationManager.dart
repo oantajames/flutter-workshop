@@ -14,8 +14,8 @@ class AuthenticationManager {
   static const String KEY_USER_NAME = 'USER_NAME';
 
 //Github related - you will have them from the github console, after you create an oauth github app
-  final String _clientId = '0c3309f29b2560e05218';
-  final String _clientSecret = '1d8f0f0626760ba3b6b30d5140f6cc95735c642b';
+  final String _clientId = '';
+  final String _clientSecret = '';
 
   bool _initialized;
   bool _loggedIn;
