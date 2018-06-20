@@ -1,8 +1,7 @@
-# flutterworkshop
+# WIP: flutterworkshop
 
-A new Flutter project.
+A simple Github Client created for a Flutter workshop.
+Will be updated along with the workshop which has multiple series.
+![](https://raw.githubusercontent.com/oantajames/flutter-workshop/master/art/screens.png)
 
-## Getting Started
 
-For help getting started with Flutter, view our online
-[documentation](https://flutter.io/).
