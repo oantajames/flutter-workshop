@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutterworkshop/ui/LoginScreen.dart';
-import 'package:flutterworkshop/ui/FeedScreen.dart';
+import 'package:flutterworkshop/networking/AuthenticationManager.dart';
 import 'package:flutterworkshop/ui/SplashScreen.dart';
-import 'package:flutterworkshop/interactor/AuthenticationManager.dart';
+
 
 void main() => runApp(new MyApp());
 

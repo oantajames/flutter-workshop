@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutterworkshop/interactor/AuthenticationManager.dart';
+import 'package:flutterworkshop/networking/AuthenticationManager.dart';
 import 'package:flutterworkshop/ui/FeedScreen.dart';
 import 'package:logging/logging.dart';
 
@@ -17,6 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = new TextEditingController();
 
   final Logger log = new Logger("_LoginScreenState");
+
   static final String LOGIN = "Login";
   static final String LOGING_IN = "Loging in...";
   static final String SUCCESS = "Succces";
@@ -27,6 +28,7 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       _loginStatus = LOGING_IN;
     });
+
     _authManager
         .login(_userNameController.text, _passwordController.text)
         .then((success) {
@@ -41,10 +43,6 @@ class _LoginScreenState extends State<LoginScreen> {
         setState(() {
           _loginStatus = LOGIN;
         });
-        Navigator
-            .of(context)
-            .push(new MaterialPageRoute(builder: (context) => FeedScreen()));
-        //todo - show error
       }
     });
   }
@@ -97,9 +95,10 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
 
-    final email = Container(
+    final userName = Container(
         padding: EdgeInsets.all(10.0),
         child: TextFormField(
+            controller: _userNameController,
             keyboardType: TextInputType.emailAddress,
             style: new TextStyle(color: Colors.white),
             autofocus: false,
@@ -108,6 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final password = Container(
         padding: EdgeInsets.all(10.0),
         child: TextFormField(
+          controller: _passwordController,
           obscureText: true,
           autofocus: false,
           style: new TextStyle(color: Colors.white),
@@ -134,7 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final validationForm = new Form(
       key: null,
       child: Column(
-        children: <Widget>[email, password],
+        children: <Widget>[userName, password],
       ),
     );
 

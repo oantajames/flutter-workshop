@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutterworkshop/networking/AuthenticationManager.dart';
 import 'package:flutterworkshop/ui/LoginScreen.dart';
 import 'package:flutterworkshop/ui/items/FeedItem.dart';
 
@@ -11,49 +12,23 @@ class FeedScreen extends StatefulWidget {
 
 class _FeedScreenState extends State<FeedScreen> {
   final int size = 30;
-  
+
+  List<FeedItem>feedItems = [];
+  AuthenticationManager authManager = new AuthenticationManager();
+
+
+  @override
+  void initState() {
+    super.initState();
+    authManager.init();
+    initFeed();
+  }
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
       body: new ListView(
-        children: <Widget>[
-          new FeedItem(
-              "James Howe",
-              "forked  hanuor/phantomjs from ariya/phantomjs 5 hours ago",
-              "Update June 6"),
-          new FeedItem(
-              "James Howe",
-              "forked  hanuor/phantomjs from ariya/phantomjs 5 hours ago",
-              "Update June 6"),
-          new FeedItem(
-              "James Howe",
-              "forked  hanuor/phantomjs from ariya/phantomjs 5 hours ago",
-              "Update June 6"),
-          new FeedItem(
-              "James Howe",
-              "forked  hanuor/phantomjs from ariya/phantomjs 5 hours ago",
-              "Update June 6"),
-          new FeedItem(
-              "James Howe",
-              "forked  hanuor/phantomjs from ariya/phantomjs 5 hours ago",
-              "Update June 6"),
-          new FeedItem(
-              "James Howe",
-              "forked  hanuor/phantomjs from ariya/phantomjs 5 hours ago",
-              "Update June 6"),
-          new FeedItem(
-              "James Howe",
-              "forked  hanuor/phantomjs from ariya/phantomjs 5 hours ago",
-              "Update June 6"),
-          new FeedItem(
-              "James Howe",
-              "forked  hanuor/phantomjs from ariya/phantomjs 5 hours ago",
-              "Update June 6"),
-          new FeedItem(
-              "James Howe",
-              "forked  hanuor/phantomjs from ariya/phantomjs 5 hours ago",
-              "Update June 6")
-        ],
+        children: feedItems,
       ),
       floatingActionButton: new FloatingActionButton(
           onPressed: () {
@@ -67,11 +42,17 @@ class _FeedScreenState extends State<FeedScreen> {
           new IconButton(
               icon: new Icon(Icons.close),
               onPressed: () {
-                Navigator.of(context).pushReplacement(
-                    new MaterialPageRoute(builder: (context) => LoginScreen()));
+                authManager.logout();
               })
         ],
       ),
     );
+  }
+
+  List<Widget> initFeed() {
+    for (int i = 0; i < 100; i++) {
+      feedItems.add(new FeedItem("UserName ${i}", "Forke ${i}", "1${i}/${i}"));
+    }
+    return feedItems;
   }
 }

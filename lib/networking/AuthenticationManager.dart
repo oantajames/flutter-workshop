@@ -2,8 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart';
 import 'package:logging/logging.dart';
-
-// A plugin: wrapper over the native shared preferences from both platforms(IOS,ANDROID)
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthenticationManager {
@@ -13,25 +11,21 @@ class AuthenticationManager {
 
   final Logger log = new Logger('AuthenticationManager');
 
-//Github related - you will have them from the github console, after you create an oauth github app
-  final String _clientId = '';
-  final String _clientSecret = '';
+  final String _clientId = '0c3309f29b2560e05218';
+  final String _clientSecret = '89b327f9086cf787ceb6cd51859c1932ced0fb58';
 
   bool _initialized;
   bool _loggedIn;
 
   String _username;
-  AuthClient _authClient;
 
-  // The interface for HTTP clients that take care of maintaining persistent
-  /// connections across multiple requests to the same server.
   Client _client = new Client();
 
   bool get loggedIn => _loggedIn;
 
   bool get initialized => _initialized;
 
-  AuthClient get authClient => _authClient;
+  String get username => _username;
 
   // Initializing the Authentication Manager
   Future init() async {
@@ -45,7 +39,6 @@ class AuthenticationManager {
     } else {
       _loggedIn = true;
       _username = userName;
-      _authClient = new AuthClient(_client, oAuthToken);
     }
     _initialized = true;
   }
@@ -61,30 +54,37 @@ class AuthenticationManager {
     preferences.setString(KEY_OATUH_TOKEN, token);
     await preferences.commit();
     _username = userName;
-    _authClient = new AuthClient(_client, token);
   }
 
   Future<bool> login(String userName, String password) async {
     var token = _getEncodedAuthorization(userName, password);
+    print(token);
     final requestHeader = {'Authorization': 'Basic ${token}'};
 
-    final requestBody = JSON.encode({
-      'clinet_id': _clientId,
+    final requestBody = json.encode({
+      'client_id': _clientId,
       'client_secret': _clientSecret,
       'scopes': ['user', 'repo', 'notifications']
     });
 
-    //save the response for the request in a var
-    final loginResponse = await authClient
-        .post(LOGIN_SERVICE, headers: requestHeader, body: requestBody)
-        .catchError((e) => log.severe(e.toString()))
-        .whenComplete(authClient.close);
 
-    if (loginResponse.statusCode == 200) {
-      final bodyJson = JSON.decode(loginResponse.body);
+    final loginResponse = await _client
+        .post(LOGIN_SERVICE, headers: requestHeader, body: requestBody)
+        .catchError((e) => print(e.toString()))
+        .whenComplete(_client.close);
+
+    print(LOGIN_SERVICE);
+    print(loginResponse.reasonPhrase);
+    print(requestHeader);
+    print(requestBody);
+    print(loginResponse.body);
+
+    if (loginResponse.statusCode == 200 || loginResponse.statusCode == 201) {
+      final bodyJson = json.decode(loginResponse.body);
       await _saveToken(userName, bodyJson['token']);
       _loggedIn = true;
     } else {
+      print(loginResponse.statusCode);
       log.severe(loginResponse.statusCode);
       _loggedIn = false;
     }
@@ -92,21 +92,9 @@ class AuthenticationManager {
   }
 
   String _getEncodedAuthorization(String userName, String password) {
-    final authorizationBytes = UTF8.encode('${userName}:${password}');
-    return BASE64.encode(authorizationBytes);
+    print(userName + password);
+    final authorizationBytes = utf8.encode('${userName}:${password}');
+    return base64.encode(authorizationBytes);
   }
 }
 
-// The HTTP client for the oauth for Github
-class AuthClient extends BaseClient {
-  final Client _client;
-  final String _token;
-
-  AuthClient(this._client, this._token);
-
-  @override
-  Future<StreamedResponse> send(BaseRequest request) {
-    request.headers['Authorization'] = _token;
-    return _client.send(request);
-  }
-}
