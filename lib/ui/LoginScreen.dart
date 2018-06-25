@@ -40,9 +40,11 @@ class _LoginScreenState extends State<LoginScreen> {
             .of(context)
             .push(new MaterialPageRoute(builder: (context) => FeedScreen()));
       } else {
-        setState(() {
-          _loginStatus = LOGIN;
-        });
+        _authManager.getLoginError;
+        if (_authManager.getLoginError)
+          setState(() {
+            _loginStatus = LOGIN;
+          });
       }
     });
   }

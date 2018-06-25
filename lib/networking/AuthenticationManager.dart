@@ -1,24 +1,26 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart';
-import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthenticationManager {
   static const String LOGIN_SERVICE = 'https://api.github.com/authorizations';
+
   static const String KEY_OATUH_TOKEN = 'AUTH_TOKEN';
   static const String KEY_USER_NAME = 'USER_NAME';
 
-  final Logger log = new Logger('AuthenticationManager');
+  static const int UNAUTHORIZED = 401;
+  static const int NOT_FOUND = 404;
+  static const int CREATED = 201;
+  static const int SUCCESS = 200;
 
   final String _clientId = '0c3309f29b2560e05218';
   final String _clientSecret = '89b327f9086cf787ceb6cd51859c1932ced0fb58';
+  LoginError _loginError;
 
   bool _initialized;
   bool _loggedIn;
-
   String _username;
-
   Client _client = new Client();
 
   bool get loggedIn => _loggedIn;
@@ -26,6 +28,8 @@ class AuthenticationManager {
   bool get initialized => _initialized;
 
   String get username => _username;
+
+  get getLoginError => _loginError;
 
   // Initializing the Authentication Manager
   Future init() async {
@@ -58,35 +62,47 @@ class AuthenticationManager {
 
   Future<bool> login(String userName, String password) async {
     var token = _getEncodedAuthorization(userName, password);
-    print(token);
-    final requestHeader = {'Authorization': 'Basic ${token}'};
 
-    final requestBody = json.encode({
-      'client_id': _clientId,
-      'client_secret': _clientSecret,
-      'scopes': ['user', 'repo', 'notifications']
-    });
+    final requestHeader = createRequestHeader(token);
 
+    final requestBody = json.encode(createRequestBody());
 
     final loginResponse = await _client
         .post(LOGIN_SERVICE, headers: requestHeader, body: requestBody)
-        .catchError((e) => print(e.toString()))
         .whenComplete(_client.close);
+    return await getLoginResponseStatus(loginResponse, userName);
+  }
 
-    print(LOGIN_SERVICE);
-    print(loginResponse.reasonPhrase);
-    print(requestHeader);
-    print(requestBody);
-    print(loginResponse.body);
+  Map<String, Object> createRequestBody() {
+    return {
+      'client_id': _clientId,
+      'client_secret': _clientSecret,
+      'scopes': ['user', 'repo', 'notifications']
+    };
+  }
 
-    if (loginResponse.statusCode == 200 || loginResponse.statusCode == 201) {
-      final bodyJson = json.decode(loginResponse.body);
-      await _saveToken(userName, bodyJson['token']);
-      _loggedIn = true;
-    } else {
-      print(loginResponse.statusCode);
-      log.severe(loginResponse.statusCode);
-      _loggedIn = false;
+  Map<String, String> createRequestHeader(String token) =>
+      {'Authorization': 'Basic ${token}'};
+
+  Future<bool> getLoginResponseStatus(
+      Response loginResponse, String userName) async {
+    switch (loginResponse.statusCode) {
+      case CREATED:
+      case SUCCESS:
+        final bodyJson = json.decode(loginResponse.body);
+        await _saveToken(userName, bodyJson['token']);
+        _loggedIn = true;
+        break;
+      case UNAUTHORIZED:
+      case NOT_FOUND:
+      default:
+        _loginError = new LoginError(
+            loginResponse.reasonPhrase, loginResponse.statusCode);
+        print(loginResponse.reasonPhrase);
+        print(loginResponse.statusCode);
+        print(loginResponse.body);
+        _loggedIn = false;
+        break;
     }
     return _loggedIn;
   }
@@ -98,3 +114,9 @@ class AuthenticationManager {
   }
 }
 
+class LoginError {
+  String errorReason;
+  int statusCode;
+
+  LoginError(this.errorReason, this.statusCode);
+}

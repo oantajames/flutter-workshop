@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutterworkshop/networking/AuthenticationManager.dart';
 import 'package:flutterworkshop/ui/LoginScreen.dart';
+import 'package:flutterworkshop/ui/SplashScreen.dart';
 import 'package:flutterworkshop/ui/items/FeedItem.dart';
 
 class FeedScreen extends StatefulWidget {
@@ -13,9 +14,8 @@ class FeedScreen extends StatefulWidget {
 class _FeedScreenState extends State<FeedScreen> {
   final int size = 30;
 
-  List<FeedItem>feedItems = [];
+  List<FeedItem> feedItems = [];
   AuthenticationManager authManager = new AuthenticationManager();
-
 
   @override
   void initState() {
@@ -42,11 +42,17 @@ class _FeedScreenState extends State<FeedScreen> {
           new IconButton(
               icon: new Icon(Icons.close),
               onPressed: () {
-                authManager.logout();
+                _logOut();
               })
         ],
       ),
     );
+  }
+
+  void _logOut() async {
+    await authManager.logout();
+    Navigator.of(context).pushReplacement(
+        new MaterialPageRoute(builder: (context) => LoginScreen()));
   }
 
   List<Widget> initFeed() {

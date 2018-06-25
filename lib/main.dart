@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutterworkshop/networking/AuthenticationManager.dart';
 import 'package:flutterworkshop/ui/SplashScreen.dart';
 
-
 void main() => runApp(new MyApp());
 
 class MyApp extends StatelessWidget {
