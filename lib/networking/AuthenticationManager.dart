@@ -84,8 +84,8 @@ class AuthenticationManager {
   Map<String, String> createRequestHeader(String token) =>
       {'Authorization': 'Basic ${token}'};
 
-  Future<bool> getLoginResponseStatus(
-      Response loginResponse, String userName) async {
+  Future<bool> getLoginResponseStatus(Response loginResponse,
+      String userName) async {
     switch (loginResponse.statusCode) {
       case CREATED:
       case SUCCESS:

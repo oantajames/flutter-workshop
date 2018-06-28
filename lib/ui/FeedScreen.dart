@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutterworkshop/networking/AuthenticationManager.dart';
 import 'package:flutterworkshop/ui/LoginScreen.dart';
-import 'package:flutterworkshop/ui/SplashScreen.dart';
 import 'package:flutterworkshop/ui/items/FeedItem.dart';
 
 class FeedScreen extends StatefulWidget {
@@ -27,8 +26,12 @@ class _FeedScreenState extends State<FeedScreen> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      body: new ListView(
-        children: feedItems,
+      body: new ListView.builder(
+        itemCount: 3,
+        itemBuilder: (context, index) {
+          return FeedItem("James Howe $index", "Action", "$index/08/2018");
+        },
+
       ),
       floatingActionButton: new FloatingActionButton(
           onPressed: () {
@@ -61,4 +64,7 @@ class _FeedScreenState extends State<FeedScreen> {
     }
     return feedItems;
   }
+
+
+
 }

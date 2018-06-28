@@ -27,7 +27,6 @@ class _SplashState extends State<SplashScreen> {
 
   void _init() async {
     await _authManager.init();
-    String route;
     if (_authManager.loggedIn) {
       new Future.delayed(const Duration(seconds: 3), () {
         Navigator
